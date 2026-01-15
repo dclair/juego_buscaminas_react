@@ -1,7 +1,7 @@
 {
   "name": "buscaminas-react",
   "private": true,
-  "homepage": "https://dclair.github.io/juego_buscaminas_react/",
+  "homepage": "https://dclair.github.io/juego_buscaminas_react",
   "type": "module",
   "scripts": {
     "dev": "vite",
