@@ -1,0 +1,442 @@
+:root {
+  --primary-color: #1a1a2e;
+  --secondary-color: #16213e;
+  --accent-color: #0f3460;
+  --highlight-color: #533483;
+  --text-color: #e94560;
+  --cell-size: min(40px, 3.5vw);
+  --cell-border: 2px solid #0f3460;
+  --max-board-width: 90vw;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.minesweeper {
+  width: 100%;
+  max-width: 1200px;
+  padding: 30px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  flex: 0 1 auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(0);
+  box-sizing: border-box;
+  
+  /* Asegurar que el contenedor no sea demasiado ancho en pantallas grandes */
+  max-width: 1400px;
+  margin: 0 auto;
+  
+  /* Añadir un poco de espacio en la parte inferior */
+  margin-bottom: 20px;
+}
+
+h1 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.game-controls {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.difficulty {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+difficulty button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--accent-color);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+difficulty button:hover {
+  background-color: var(--highlight-color);
+}
+
+difficulty button.active {
+  background-color: var(--highlight-color);
+  font-weight: bold;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.mines, .timer {
+  font-size: 1.2rem;
+  font-weight: bold;
+  min-width: 100px;
+  text-align: center;
+}
+
+.new-game {
+  background-color: var(--text-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.new-game:hover {
+  background-color: #d13652;
+}
+
+.best-time {
+  font-size: 1rem;
+  color: var(--accent-color);
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.game-status {
+  min-height: 40px;
+  margin-bottom: 15px;
+}
+
+.message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 0 auto;
+  max-width: 300px;
+}
+
+.message.won {
+  background-color: #4caf50;
+  color: white;
+}
+
+.message.lost {
+  background-color: #f44336;
+  color: white;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
+  grid-gap: 1px;
+  background-color: #999;
+  border: 2px solid #666;
+  margin: 0 auto;
+  max-width: var(--max-board-width);
+  overflow-x: auto;
+  justify-content: center;
+  padding: 2px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  
+  /* Asegurar que el tablero no sea demasiado pequeño en pantallas grandes */
+  min-width: min(90vw, 800px);
+  
+  /* Centrar el tablero */
+  margin: 20px auto;
+  
+  /* Hacer que el scroll sea más suave */
+  scrollbar-width: thin;
+  scrollbar-color: #666 #f0f0f0;
+}
+
+/* Estilos para la barra de desplazamiento en navegadores WebKit */
+.board::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.board::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.board::-webkit-scrollbar-thumb {
+  background-color: #666;
+  border-radius: 4px;
+}
+
+.row {
+  display: contents;
+}
+
+/* Celdas del tablero */
+.cell {
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%; /* Mantener relación 1:1 */
+  background-color: #c0c0c0;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  border: 2px outset #fff;
+  box-shadow: inset -1px -1px 0 0 #7b7b7b;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor para el contenido de la celda */
+
+/* Contenedor para el contenido de la celda: números, bombas o banderas */
+.cell > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Esto centra exactamente el contenido */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.8em; /* Tamaño consistente para números, bombas y banderas */
+  line-height: 1;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+
+.cell:hover:not(.revealed):not(.flagged) {
+  background-color: #d9d9d9;
+}
+
+.cell.revealed {
+  background-color: #e0e0e0;
+  cursor: default;
+  border: 1px solid #bdbdbd;
+  box-shadow: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilo especial para celdas vacías reveladas */
+.cell.revealed:not(.mine):not(.adjacent-1):not(.adjacent-2):not(.adjacent-3):not(.adjacent-4):not(.adjacent-5):not(.adjacent-6):not(.adjacent-7):not(.adjacent-8) {
+  background-color: #e0e0e0;
+}
+
+/* Estilos para los números adyacentes */
+.cell.revealed {
+  background-color: #e0e0e0;
+}
+
+.cell .number {
+  font-size: 1.5em;
+  font-weight: 800;
+  text-shadow: 0 0 1px rgba(0,0,0,0.3);
+  line-height: 1;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: #000;
+}
+
+/* Colores para los números */
+.cell .number-1 { color: #0000ff !important; } /* Azul */
+.cell .number-2 { color: #008000 !important; } /* Verde */
+.cell .number-3 { color: #ff0000 !important; } /* Rojo */
+.cell .number-4 { color: #000080 !important; } /* Azul marino */
+.cell .number-5 { color: #800000 !important; } /* Granate */
+.cell .number-6 { color: #008080 !important; } /* Verde azulado */
+.cell .number-7 { color: #000000 !important; } /* Negro */
+.cell .number-8 { color: #808080 !important; } /* Gris */
+
+/* Estilos para minas y banderas */
+.cell .mine-emoji,
+.cell .flag-emoji {
+  font-size: 1.8em;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+}
+
+.cell.flagged {
+  background-color: #c0c0c0;
+}
+
+.cell.flagged .flag-emoji {
+  color: #ff0000;
+}
+
+/* Estilos para celdas con bandera */
+.cell.flagged {
+  background-color: #c0c0c0;
+}
+
+/* Asegurar que el emoji de bandera se vea bien */
+/* Bombas y banderas con el mismo tamaño que números */
+.cell.flagged > span {
+  font-size: 1.8em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cell.mine {
+  background-color: #ff0000;
+}
+
+.cell.mine .mine-emoji {
+  color: #000;
+  font-size: 1.5em;
+}
+
+/* Asegurar que el emoji de mina se vea bien */
+/* Bombas y banderas con el mismo tamaño que números */
+.cell.mine > span {
+  font-size: 1.8em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Mejorar visibilidad de los números */
+.adjacent-1 { color: #0000ff; font-weight: 800; }
+.adjacent-2 { color: #008000; font-weight: 800; }
+.adjacent-3 { color: #ff0000; font-weight: 800; }
+.adjacent-4 { color: #000080; font-weight: 800; }
+.adjacent-5 { color: #800000; font-weight: 800; }
+.adjacent-6 { color: #008080; font-weight: 800; }
+.adjacent-7 { color: #000000; font-weight: 800; }
+.adjacent-8 { color: #808080; font-weight: 800; }
+
+/* Estilos para los números (mantenidos por compatibilidad) */
+.number-1 { color: #0000ff; font-weight: 800; }
+.number-2 { color: #008000; font-weight: 800; }
+.number-3 { color: #ff0000; font-weight: 800; }
+.number-4 { color: #000080; font-weight: 800; }
+.number-5 { color: #800000; font-weight: 800; }
+.number-6 { color: #008080; font-weight: 800; }
+.number-7 { color: #000000; font-weight: 800; }
+.number-8 { color: #808080; font-weight: 800; }
+
+.instructions {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: left;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.instructions p {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :root {
+    --cell-size: 25px;
+  }
+  
+  .mines, .timer {
+    font-size: 1rem;
+    min-width: 80px;
+  }
+  
+  .new-game {
+    padding: 6px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .difficulty {
+    flex-wrap: wrap;
+  }
+  
+  .difficulty button {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .game-info {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --cell-size: 20px;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  .mines, .timer {
+    font-size: 0.9rem;
+    min-width: 70px;
+  }
+  
+  .new-game {
+    padding: 5px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .message {
+    font-size: 1.2rem;
+    padding: 8px;
+  }
+  
+  .instructions {
+    font-size: 0.8rem;
+    padding: 10px;
+  }
+}
